@@ -1,0 +1,4 @@
+import { Router } from 'express'; import SavedCollege from '../models/SavedCollege.js'; import {authenticate,authorizeUser} from '../middleware/auth.js'; const r=Router(); r.use(authenticate,authorizeUser);
+r.get('/',async(req,res,next)=>{try{const data=await SavedCollege.find({studentId:req.user._id}).populate('collegeId');res.json({success:true,data});}catch(e){next(e)}});
+r.post('/',async(req,res,next)=>{try{const data=await SavedCollege.create({studentId:req.user._id,collegeId:req.body.collegeId});res.status(201).json({success:true,data});}catch(e){next(e)}});
+r.delete('/:collegeId',async(req,res,next)=>{try{await SavedCollege.findOneAndDelete({studentId:req.user._id,collegeId:req.params.collegeId});res.json({success:true,message:'College removed from saved list'});}catch(e){next(e)}}); export default r;

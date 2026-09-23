@@ -1,0 +1,3 @@
+import StudentProfile from '../models/StudentProfile.js';
+export async function getProfile(req,res,next){try{const data=await StudentProfile.findOne({userId:req.user._id}).populate('preferredCourse','courseName courseCode');res.json({success:true,data});}catch(e){next(e)}}
+export async function upsertProfile(req,res,next){try{const data=await StudentProfile.findOneAndUpdate({userId:req.user._id},{...req.body,userId:req.user._id},{new:true,upsert:true,setDefaultsOnInsert:true,runValidators:true}).populate('preferredCourse','courseName courseCode');res.json({success:true,message:'Profile saved',data});}catch(e){next(e)}}

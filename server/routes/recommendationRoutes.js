@@ -1,0 +1,1 @@
+import { Router } from 'express'; import {generate,listMine,getOne} from '../controllers/recommendationController.js'; import {authenticate,authorizeUser} from '../middleware/auth.js'; const r=Router(); r.use(authenticate,authorizeUser); r.post('/generate',generate); r.get('/',listMine); r.get('/:id',getOne); export default r;
