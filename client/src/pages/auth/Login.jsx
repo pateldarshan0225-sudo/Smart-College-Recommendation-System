@@ -1,2 +1,144 @@
-import {useState} from 'react';import {Link,useNavigate} from 'react-router-dom';import {useAuth} from '../../context/AuthContext';
-export default function Login(){const [form,setForm]=useState({email:'',password:''});const [err,setErr]=useState('');const {login}=useAuth();const nav=useNavigate();const submit=async e=>{e.preventDefault();try{const u=await login(form);nav(u.role==='admin'?'/admin/dashboard':'/user/dashboard')}catch(x){setErr(x.response?.data?.message||'Login failed')}};return <div className="container py-5" style={{maxWidth:500}}><div className="card shadow-sm"><div className="card-body p-4"><h2>Login</h2>{err&&<div className="alert alert-danger">{err}</div>}<form onSubmit={submit}><input className="form-control mb-3" placeholder="Email" type="email" required value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/><input className="form-control mb-3" placeholder="Password" type="password" required value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/><button className="btn btn-primary w-100">Login</button></form><p className="mt-3">No account? <Link to="/register">Register</Link></p></div></div></div>}
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { CollegeLogo } from '../../components/college-reco/CollegeSquircles';
+import { Lock, Mail, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
+import { playSound } from '../../utils/audio';
+
+export default function Login() {
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [err, setErr] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const nav = useNavigate();
+
+  const submit = async (e) => {
+    e.preventDefault();
+    playSound('click');
+    setLoading(true);
+    setErr('');
+    try {
+      const u = await login(form);
+      playSound('success');
+      nav(u.role === 'admin' ? '/admin/dashboard' : '/user/dashboard');
+    } catch (x) {
+      playSound('pop');
+      setErr(x.response?.data?.message || 'Invalid email or password. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="re-app-container" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div className="re-ambient-glow" />
+
+      <div style={{
+        width: '100%',
+        maxWidth: '440px',
+        background: 'var(--re-bg-surface)',
+        borderRadius: '28px',
+        boxShadow: 'var(--re-shadow-canvas)',
+        padding: '36px 32px',
+        position: 'relative',
+        zIndex: 1,
+        border: '1px solid rgba(255,255,255,0.7)',
+        textAlign: 'center'
+      }}>
+        {/* Brand Header */}
+        <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+          <CollegeLogo size={32} />
+          <span style={{ fontSize: '22px', fontWeight: 800, color: 'var(--re-text-primary)' }}>Smart College</span>
+        </Link>
+
+        <div className="re-interactive-badge" style={{ marginBottom: '10px' }}>
+          <Sparkles size={11} /> AI ADMISSION PORTAL
+        </div>
+
+        <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--re-text-primary)', margin: '0 0 6px' }}>
+          Welcome Back
+        </h2>
+        <p style={{ fontSize: '13px', color: 'var(--re-text-secondary)', margin: '0 0 24px' }}>
+          Sign in to view your personalized college recommendations & saved shortlists.
+        </p>
+
+        {err && (
+          <div style={{
+            background: 'rgba(255, 101, 132, 0.12)',
+            border: '1px solid rgba(255, 101, 132, 0.3)',
+            color: '#D90429',
+            padding: '10px 14px',
+            borderRadius: '12px',
+            fontSize: '12.5px',
+            fontWeight: 600,
+            marginBottom: '18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            textAlign: 'left'
+          }}>
+            <AlertCircle size={16} style={{ flexShrink: 0 }} />
+            <span>{err}</span>
+          </div>
+        )}
+
+        <form onSubmit={submit} style={{ textAlign: 'left' }}>
+          <div className="re-form-group">
+            <label className="re-form-label">Email Address</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                className="re-form-input"
+                placeholder="student@example.com"
+                type="email"
+                required
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                style={{ paddingLeft: '38px' }}
+              />
+              <Mail size={16} color="var(--re-text-muted)" style={{ position: 'absolute', left: '12px', top: '14px' }} />
+            </div>
+          </div>
+
+          <div className="re-form-group">
+            <label className="re-form-label">Password</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                className="re-form-input"
+                placeholder="••••••••"
+                type="password"
+                required
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                style={{ paddingLeft: '38px' }}
+              />
+              <Lock size={16} color="var(--re-text-muted)" style={{ position: 'absolute', left: '12px', top: '14px' }} />
+            </div>
+          </div>
+
+          <button
+            className="re-btn-primary"
+            type="submit"
+            disabled={loading}
+            style={{ marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+          >
+            {loading ? 'Authenticating...' : 'Sign In to Portal'}
+            {!loading && <ArrowRight size={16} />}
+          </button>
+        </form>
+
+        <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--re-border-subtle)', fontSize: '13px', color: 'var(--re-text-secondary)' }}>
+          Don't have an account yet?{' '}
+          <Link to="/register" style={{ color: 'var(--re-accent-purple)', fontWeight: 800, textDecoration: 'none' }}>
+            Create Account
+          </Link>
+        </div>
+
+        <div style={{ marginTop: '12px' }}>
+          <Link to="/" style={{ fontSize: '12px', color: 'var(--re-text-muted)', textDecoration: 'none' }}>
+            ← Back to Home Page
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
