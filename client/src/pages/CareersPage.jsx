@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/ruang-edit.css';
 import { CollegeNavbar } from '../components/college-reco/CollegeNavbar';
 import { StreamCareerExplorer } from '../components/college-reco/StreamCareerExplorer';
@@ -6,9 +7,12 @@ import { CollegeDetailModal } from '../components/college-reco/CollegeDetailModa
 import { QuickRecommendationModal } from '../components/college-reco/QuickRecommendationModal';
 import { CompareCollegesModal } from '../components/college-reco/CompareCollegesModal';
 import { playSound, toggleSound } from '../utils/audio';
+import { useAuth } from '../context/AuthContext';
 import { Briefcase, TrendingUp, Sparkles, CheckCircle2, Building, ArrowUpRight } from 'lucide-react';
 
 export default function CareersPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [theme, setTheme] = useState('lavender');
   const [soundOn, setSoundOn] = useState(true);
   const [selectedCollege, setSelectedCollege] = useState(null);
@@ -19,6 +23,22 @@ export default function CareersPage() {
     document.title = 'Degree Streams & Career Pathways - Smart College';
     window.scrollTo(0, 0);
   }, []);
+
+  const handleOpenAiMatcher = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setQuickMatchOpen(true);
+  };
+
+  const handleOpenCompare = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setCompareModalOpen(true);
+  };
 
   const handleToggleTheme = () => {
     const nextTheme = theme === 'lavender' ? 'midnight' : 'lavender';
@@ -41,8 +61,8 @@ export default function CareersPage() {
         onToggleTheme={handleToggleTheme}
         soundOn={soundOn}
         onToggleSound={handleToggleSound}
-        onOpenQuickMatch={() => setQuickMatchOpen(true)}
-        onOpenCompare={() => setCompareModalOpen(true)}
+        onOpenQuickMatch={handleOpenAiMatcher}
+        onOpenCompare={handleOpenCompare}
       />
 
       <main className="re-page-frame">

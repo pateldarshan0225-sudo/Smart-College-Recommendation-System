@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/ruang-edit.css';
 import { CollegeNavbar } from '../components/college-reco/CollegeNavbar';
 import { CollegeLeaderboardSection } from '../components/college-reco/CollegeLeaderboardSection';
@@ -13,6 +14,7 @@ import { Building2, Search, Filter, Sparkles, MapPin, Award, ArrowUpRight, Scale
 
 export default function CollegesPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [theme, setTheme] = useState('lavender');
   const [soundOn, setSoundOn] = useState(true);
 
@@ -62,7 +64,7 @@ export default function CollegesPage() {
 
   const handleToggleSave = async (college) => {
     if (!user) {
-      setQuickMatchOpen(true);
+      navigate('/login');
       return;
     }
     const id = college._id;
@@ -78,6 +80,22 @@ export default function CollegesPage() {
         await api.post('/saved-colleges', { collegeId: id });
       } catch (err) {}
     }
+  };
+
+  const handleOpenAiMatcher = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setQuickMatchOpen(true);
+  };
+
+  const handleOpenCompare = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setCompareModalOpen(true);
   };
 
   const handleToggleTheme = () => {
@@ -103,8 +121,8 @@ export default function CollegesPage() {
         onToggleTheme={handleToggleTheme}
         soundOn={soundOn}
         onToggleSound={handleToggleSound}
-        onOpenQuickMatch={() => setQuickMatchOpen(true)}
-        onOpenCompare={() => setCompareModalOpen(true)}
+        onOpenQuickMatch={handleOpenAiMatcher}
+        onOpenCompare={handleOpenCompare}
         collegesCount={colleges.length > 0 ? colleges.length : 500}
         savedCount={savedIds.length}
       />
@@ -131,7 +149,7 @@ export default function CollegesPage() {
                 className="re-nav-primary-action-btn"
                 onClick={() => {
                   playSound('pop');
-                  setQuickMatchOpen(true);
+                  handleOpenAiMatcher();
                 }}
                 style={{ padding: '10px 18px', fontSize: '13.5px' }}
               >
@@ -143,7 +161,7 @@ export default function CollegesPage() {
                 className="re-mobile-compare-btn"
                 onClick={() => {
                   playSound('click');
-                  setCompareModalOpen(true);
+                  handleOpenCompare();
                 }}
                 style={{ padding: '10px 18px', fontSize: '13.5px', width: 'auto' }}
               >
@@ -158,16 +176,16 @@ export default function CollegesPage() {
         <CollegeLeaderboardSection
           colleges={colleges}
           onSelectCollege={(col) => setSelectedCollege(col)}
-          onOpenCompare={() => setCompareModalOpen(true)}
+          onOpenCompare={handleOpenCompare}
         />
 
         {/* 2. Interactive Directory Cards Explorer */}
         <CollegeCommunitySection
           colleges={colleges}
           savedIds={savedIds}
-          onOpenQuickMatch={() => setQuickMatchOpen(true)}
+          onOpenQuickMatch={handleOpenAiMatcher}
           onOpenCollegeDetail={(col) => setSelectedCollege(col)}
-          onOpenCompare={() => setCompareModalOpen(true)}
+          onOpenCompare={handleOpenCompare}
           onToggleSave={handleToggleSave}
         />
       </main>

@@ -93,6 +93,10 @@ export const CollegeNavbar = ({
   const handleLinkClick = (item) => {
     playSound('click');
     setMobileMenuOpen(false);
+    if (!user && (item.id === 'compare' || item.id === 'engine')) {
+      navigate('/login');
+      return;
+    }
     if (onNavigate) {
       onNavigate(item.id, item.path);
     } else {
@@ -273,6 +277,10 @@ export const CollegeNavbar = ({
               className="re-nav-primary-action-btn"
               onClick={() => {
                 playSound('pop');
+                if (!user) {
+                  navigate('/login');
+                  return;
+                }
                 if (onOpenQuickMatch) {
                   onOpenQuickMatch();
                 } else {
@@ -388,6 +396,10 @@ export const CollegeNavbar = ({
                 onClick={() => {
                   playSound('pop');
                   setMobileMenuOpen(false);
+                  if (!user) {
+                    navigate('/login');
+                    return;
+                  }
                   if (onOpenQuickMatch) {
                     onOpenQuickMatch();
                   } else {
@@ -404,6 +416,10 @@ export const CollegeNavbar = ({
                 onClick={() => {
                   playSound('click');
                   setMobileMenuOpen(false);
+                  if (!user) {
+                    navigate('/login');
+                    return;
+                  }
                   navigate('/compare');
                 }}
               >

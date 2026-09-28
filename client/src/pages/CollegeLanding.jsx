@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/ruang-edit.css';
 import { CollegeNavbar } from '../components/college-reco/CollegeNavbar';
 import { CollegeHeroSection } from '../components/college-reco/CollegeHeroSection';
@@ -17,6 +18,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function CollegeLanding() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('home');
   const [theme, setTheme] = useState('lavender');
   const [soundOn, setSoundOn] = useState(true);
@@ -66,7 +68,7 @@ export default function CollegeLanding() {
 
   const handleToggleSave = async (college) => {
     if (!user) {
-      setQuickMatchOpen(true);
+      navigate('/login');
       return;
     }
     const id = college._id;
@@ -82,6 +84,22 @@ export default function CollegeLanding() {
         await api.post('/saved-colleges', { collegeId: id });
       } catch (err) {}
     }
+  };
+
+  const handleOpenAiMatcher = (moduleType) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setQuickMatchOpen(true);
+  };
+
+  const handleOpenCompare = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setCompareModalOpen(true);
   };
 
   const handleToggleTheme = () => {
@@ -157,8 +175,8 @@ export default function CollegeLanding() {
       <CollegeNavbar
         activeSection={activeSection}
         onNavigate={handleNavigate}
-        onOpenQuickMatch={() => setQuickMatchOpen(true)}
-        onOpenCompare={() => setCompareModalOpen(true)}
+        onOpenQuickMatch={handleOpenAiMatcher}
+        onOpenCompare={handleOpenCompare}
         theme={theme}
         onToggleTheme={handleToggleTheme}
         soundOn={soundOn}
@@ -172,7 +190,7 @@ export default function CollegeLanding() {
         {/* 1. Hero Section with 4-Squircle Stream Carousel */}
         <div id="home-section">
           <CollegeHeroSection
-            onOpenQuickMatch={() => setQuickMatchOpen(true)}
+            onOpenQuickMatch={handleOpenAiMatcher}
             onSelectStream={(stream) => {
               const el = document.getElementById('careers-section');
               if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -183,14 +201,14 @@ export default function CollegeLanding() {
         {/* 2. AI Recommendation Engine Feature Cards */}
         <div id="engine-section">
           <CollegeEngineSection
-            onOpenQuickMatch={() => setQuickMatchOpen(true)}
+            onOpenQuickMatch={handleOpenAiMatcher}
           />
         </div>
 
         {/* 3. Step-by-Step Admissions & Counseling Roadmap */}
         <div id="roadmap-section">
           <AdmissionsRoadmapSection
-            onOpenQuickMatch={() => setQuickMatchOpen(true)}
+            onOpenQuickMatch={handleOpenAiMatcher}
           />
         </div>
 
@@ -206,14 +224,14 @@ export default function CollegeLanding() {
           <CollegeLeaderboardSection
             colleges={colleges}
             onSelectCollege={(col) => setSelectedCollege(col)}
-            onOpenCompare={() => setCompareModalOpen(true)}
+            onOpenCompare={handleOpenCompare}
           />
         </div>
 
         {/* 6. Scholarship, MYSY & Fee Waiver Calculator */}
         <div id="scholarships-section">
           <ScholarshipCalculatorSection
-            onOpenQuickMatch={() => setQuickMatchOpen(true)}
+            onOpenQuickMatch={handleOpenAiMatcher}
           />
         </div>
 
@@ -222,9 +240,9 @@ export default function CollegeLanding() {
           <CollegeCommunitySection
             colleges={colleges}
             savedIds={savedIds}
-            onOpenQuickMatch={() => setQuickMatchOpen(true)}
+            onOpenQuickMatch={handleOpenAiMatcher}
             onOpenCollegeDetail={(col) => setSelectedCollege(col)}
-            onOpenCompare={() => setCompareModalOpen(true)}
+            onOpenCompare={handleOpenCompare}
             onToggleSave={handleToggleSave}
           />
         </div>

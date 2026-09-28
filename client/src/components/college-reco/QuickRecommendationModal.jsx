@@ -1,8 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, Sparkles, Check, ArrowRight, Award, DollarSign, Building, TrendingUp, Compass, Star } from 'lucide-react';
 import { playSound } from '../../utils/audio';
+import { useAuth } from '../../context/AuthContext';
 
 export const QuickRecommendationModal = ({ isOpen, onClose, colleges = [], onSelectCollege }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isOpen && !user) {
+      onClose();
+      navigate('/login');
+    }
+  }, [isOpen, user, navigate, onClose]);
+
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     tenth: 85,
@@ -18,7 +30,7 @@ export const QuickRecommendationModal = ({ isOpen, onClose, colleges = [], onSel
   const [recommendations, setRecommendations] = useState([]);
   const [calculating, setCalculating] = useState(false);
 
-  if (!isOpen) return null;
+  if (!isOpen || !user) return null;
 
   const handleNext = () => {
     playSound('click');

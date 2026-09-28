@@ -11,7 +11,7 @@ export default function ComparePage() {
   const [theme, setTheme] = useState('lavender');
   const [soundOn, setSoundOn] = useState(true);
   const [colleges, setColleges] = useState([]);
-  const [selectedIds, setSelectedIds] = useState(['c1', 'c2', 'c3']);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCollege, setSelectedCollege] = useState(null);
   const [quickMatchOpen, setQuickMatchOpen] = useState(false);
@@ -149,16 +149,14 @@ export default function ComparePage() {
 
   const handleAddCollege = (id) => {
     playSound('pop');
-    if (selectedIds.length < 4 && !selectedIds.includes(id)) {
+    if (selectedIds.length < 5 && !selectedIds.includes(id)) {
       setSelectedIds([...selectedIds, id]);
     }
   };
 
   const handleRemoveCollege = (id) => {
     playSound('tap');
-    if (selectedIds.length > 1) {
-      setSelectedIds(selectedIds.filter((sId) => sId !== id));
-    }
+    setSelectedIds(selectedIds.filter((sId) => sId !== id));
   };
 
   return (
@@ -185,7 +183,7 @@ export default function ComparePage() {
             Compare Colleges Head-to-Head
           </h1>
           <p style={{ fontSize: '15px', color: 'var(--re-text-secondary)', lineHeight: 1.6, maxWidth: '760px', margin: 0 }}>
-            Compare up to 4 universities simultaneously across tuition fees, median CTC placements, NAAC grades, campus infrastructure, and calculated return on investment.
+            Compare up to 5 universities simultaneously across tuition fees, median CTC placements, NAAC grades, campus infrastructure, and calculated return on investment.
           </p>
         </section>
 
@@ -193,16 +191,24 @@ export default function ComparePage() {
         <div style={{ background: 'var(--re-bg-surface)', padding: '16px 20px', borderRadius: '16px', border: '1px solid var(--re-border-subtle)', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--re-text-primary)' }}>
-              Quick Add to Compare ({selectedIds.length}/4 selected):
+              Select Colleges to Compare ({selectedIds.length}/5 selected):
             </span>
+            {selectedIds.length > 0 && (
+              <button
+                onClick={() => setSelectedIds([])}
+                style={{ background: 'none', border: 'none', color: 'var(--re-accent-pink)', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+              >
+                Clear All
+              </button>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {allAvailable.filter((c) => !selectedIds.includes(c._id)).slice(0, 4).map((c) => (
+            {allAvailable.filter((c) => !selectedIds.includes(c._id)).slice(0, 8).map((c) => (
               <button
                 key={c._id}
                 onClick={() => handleAddCollege(c._id)}
-                disabled={selectedIds.length >= 4}
+                disabled={selectedIds.length >= 5}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -214,8 +220,8 @@ export default function ComparePage() {
                   background: 'var(--re-bg-surface-subtle)',
                   border: '1px solid var(--re-border-subtle)',
                   color: 'var(--re-text-primary)',
-                  cursor: selectedIds.length >= 4 ? 'not-allowed' : 'pointer',
-                  opacity: selectedIds.length >= 4 ? 0.5 : 1
+                  cursor: selectedIds.length >= 5 ? 'not-allowed' : 'pointer',
+                  opacity: selectedIds.length >= 5 ? 0.45 : 1
                 }}
               >
                 <Plus size={13} color="var(--re-accent-purple)" />
@@ -226,8 +232,9 @@ export default function ComparePage() {
         </div>
 
         {/* Big Side-by-Side Matrix Table */}
-        <div style={{ background: 'var(--re-bg-surface)', borderRadius: '20px', border: '1px solid var(--re-border-subtle)', overflow: 'hidden', boxShadow: 'var(--re-shadow-card)' }}>
-          <div style={{ overflowX: 'auto' }}>
+        {comparedList.length > 0 ? (
+          <div style={{ background: 'var(--re-bg-surface)', borderRadius: '20px', border: '1px solid var(--re-border-subtle)', overflow: 'hidden', boxShadow: 'var(--re-shadow-card)' }}>
+            <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '780px' }}>
               {/* College Header Row */}
               <thead>
@@ -405,6 +412,26 @@ export default function ComparePage() {
             </table>
           </div>
         </div>
+        ) : (
+          <div
+            style={{
+              background: 'var(--re-bg-surface)',
+              borderRadius: '20px',
+              border: '1px dashed var(--re-border-medium)',
+              padding: '60px 24px',
+              textAlign: 'center',
+              boxShadow: 'var(--re-shadow-card)'
+            }}
+          >
+            <Scale size={48} color="var(--re-accent-purple)" style={{ opacity: 0.6, marginBottom: '14px' }} />
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--re-text-primary)', margin: '0 0 8px' }}>
+              No Colleges Selected for Comparison
+            </h3>
+            <p style={{ fontSize: '14px', color: 'var(--re-text-secondary)', maxWidth: '460px', margin: '0 auto 20px' }}>
+              Click any of the college chips above to add up to 5 universities to this side-by-side benchmark matrix.
+            </p>
+          </div>
+        )}
       </main>
 
       <CollegeDetailModal

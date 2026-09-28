@@ -50,13 +50,17 @@ export default function App() {
             {/* Dedicated Public Pages */}
             <Route path="/" element={<CollegeLanding />} />
             <Route path="/colleges" element={<CollegesPage />} />
-            <Route path="/ai-matcher" element={<AiMatcherPage />} />
-            <Route path="/engine" element={<AiMatcherPage />} />
             <Route path="/roadmap" element={<RoadmapPage />} />
             <Route path="/careers" element={<CareersPage />} />
             <Route path="/scholarships" element={<ScholarshipsPage />} />
-            <Route path="/compare" element={<ComparePage />} />
             <Route path="/ruang-edit" element={<RuangEditLanding />} />
+
+            {/* Auth Protected Feature Routes (AI Matcher & Comparison) */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/ai-matcher" element={<AiMatcherPage />} />
+              <Route path="/engine" element={<AiMatcherPage />} />
+              <Route path="/compare" element={<ComparePage />} />
+            </Route>
 
             {/* Auth Routes */}
             <Route path="/login" element={<Login />} />
@@ -65,6 +69,7 @@ export default function App() {
             {/* User Protected Routes */}
             <Route element={<ProtectedRoute role="user" />}>
               <Route path="/user" element={<UserLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="academic" element={<Academic />} />
@@ -79,6 +84,7 @@ export default function App() {
             {/* Admin Protected Routes */}
             <Route element={<ProtectedRoute role="admin" />}>
               <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<AdminDashboard />} />
                 {entities.map((e) => (
                   <Route key={e} path={e} element={<EntityPage entity={e} />} />

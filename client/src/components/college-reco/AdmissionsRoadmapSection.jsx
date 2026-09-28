@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, CheckCircle2, ArrowRight, Award, FileText, Compass, DollarSign, ShieldCheck } from 'lucide-react';
-import { SparkleStar } from './CollegeSquircles';
+import { Calendar, CheckCircle2, Award, Compass, DollarSign, Lightbulb, ArrowRight, Check, Sparkles } from 'lucide-react';
 import { playSound } from '../../utils/audio';
 
 export const AdmissionsRoadmapSection = ({ onOpenQuickMatch }) => {
@@ -11,8 +10,16 @@ export const AdmissionsRoadmapSection = ({ onOpenQuickMatch }) => {
       step: '01',
       title: 'Entrance Exams & Merit Calculation',
       subtitle: 'GUJCET / JEE Main / 12th Board Score Assessment',
-      duration: 'May - June',
-      color: '#7C6DAF',
+      summary: 'Assessment of 12th Board marks & GUJCET percentiles to compute your state ACPC merit rank.',
+      duration: 'May – June',
+      color: '#FF6584',
+      numColor: '#C84630',
+      textColor: '#4A201A',
+      tapeColor: 'linear-gradient(135deg, rgba(248, 125, 110, 0.88) 0%, rgba(239, 68, 68, 0.78) 100%)',
+      tapeAngle: '-2.2deg',
+      cardTilt: '-3deg',
+      bgGradient: 'linear-gradient(180deg, #FFF0EE 0%, #FFE2DF 100%)',
+      glow: 'rgba(248, 113, 113, 0.35)',
       icon: <Award size={20} />,
       details: [
         'Merit Rank formula: 50% Board PCM/PCB marks + 50% GUJCET/JEE percentile',
@@ -23,10 +30,18 @@ export const AdmissionsRoadmapSection = ({ onOpenQuickMatch }) => {
     },
     {
       step: '02',
-      title: 'AI College Choice Filling & Preference Locking',
+      title: 'AI College Choice Filling & Locking',
       subtitle: 'Simulated Choice Ordering & Mock Allotment',
-      duration: 'June - July',
-      color: '#FFA439',
+      summary: 'Smart AI preference sequencing based on your rank and simulated mock round probabilities.',
+      duration: 'June – July',
+      color: '#34A853',
+      numColor: '#1E7E44',
+      textColor: '#133E23',
+      tapeColor: 'linear-gradient(135deg, rgba(82, 196, 120, 0.88) 0%, rgba(34, 197, 94, 0.78) 100%)',
+      tapeAngle: '2deg',
+      cardTilt: '2deg',
+      bgGradient: 'linear-gradient(180deg, #EDFAF2 0%, #DCF5E4 100%)',
+      glow: 'rgba(74, 222, 128, 0.35)',
       icon: <Compass size={20} />,
       details: [
         'Smart AI preference sequencing based on your exact merit rank and budget',
@@ -37,10 +52,18 @@ export const AdmissionsRoadmapSection = ({ onOpenQuickMatch }) => {
     },
     {
       step: '03',
-      title: 'ACPC Round 1 & 2 Allotment & Seat Confirmation',
+      title: 'ACPC Seat Allotment & Confirmation',
       subtitle: 'Token Fee Payment & Document Verification',
-      duration: 'July - August',
-      color: '#35C7B8',
+      summary: 'Round 1 & 2 seat allocation, online token fee payment, and help center verification.',
+      duration: 'July – August',
+      color: '#E5B634',
+      numColor: '#9E700E',
+      textColor: '#423007',
+      tapeColor: 'linear-gradient(135deg, rgba(246, 206, 85, 0.92) 0%, rgba(234, 179, 8, 0.82) 100%)',
+      tapeAngle: '-1.6deg',
+      cardTilt: '-1.8deg',
+      bgGradient: 'linear-gradient(180deg, #FEF9E7 0%, #FDF0C3 100%)',
+      glow: 'rgba(250, 204, 21, 0.35)',
       icon: <CheckCircle2 size={20} />,
       details: [
         'Online admission letter generation upon paying token tuition fee',
@@ -53,8 +76,16 @@ export const AdmissionsRoadmapSection = ({ onOpenQuickMatch }) => {
       step: '04',
       title: 'Scholarship Grants & Campus Reporting',
       subtitle: 'MYSY, TFWS & Digital Gujarat Fee Waivers',
-      duration: 'August - September',
-      color: '#FF6584',
+      summary: 'Claim 100% tuition waivers through TFWS/MYSY, campus reporting, and final enrollment.',
+      duration: 'August – Sept',
+      color: '#35C7B8',
+      numColor: '#167D94',
+      textColor: '#0C3E4A',
+      tapeColor: 'linear-gradient(135deg, rgba(87, 199, 219, 0.88) 0%, rgba(20, 184, 166, 0.78) 100%)',
+      tapeAngle: '2.6deg',
+      cardTilt: '3.2deg',
+      bgGradient: 'linear-gradient(180deg, #EAF7FB 0%, #D2F2F8 100%)',
+      glow: 'rgba(56, 189, 248, 0.35)',
       icon: <DollarSign size={20} />,
       details: [
         'MYSY Scholarship: 50% tuition waiver (up to ₹50,000/yr) for family income < ₹6 LPA',
@@ -68,85 +99,136 @@ export const AdmissionsRoadmapSection = ({ onOpenQuickMatch }) => {
   const cur = steps[activeStep];
 
   return (
-    <section className="re-class-section-wrapper" style={{ padding: '40px 36px', marginBottom: '36px' }} aria-label="Admissions Journey Roadmap">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <div className="re-interactive-badge" style={{ marginBottom: '8px' }}>
-            <Calendar size={12} /> ADMISSION BLUEPRINT 2024-2025
-          </div>
-          <h2 className="re-section-title">
-            Step-by-Step College Admissions Roadmap
-          </h2>
-        </div>
-        <p className="re-section-subtitle">
+    <section className="re-roadmap-board" aria-label="Admissions Journey Roadmap">
+      {/* Top Left Folder Tab Badge */}
+      <div className="re-roadmap-folder-tab">
+        <span>#DELIVER</span>
+      </div>
+
+      {/* Centered Heading & Subtitle */}
+      <div className="re-roadmap-header">
+        <h2 className="re-roadmap-title">
+          Step-by-Step College Admissions Roadmap
+        </h2>
+        <p className="re-roadmap-subtitle">
           Navigate from entrance exam preparation to final university enrollment with verified timelines and cutoffs.
         </p>
       </div>
 
-      {/* 4 Interactive Step Tabs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px', marginBottom: '28px' }}>
+      {/* 4 Taped Sticky Notes */}
+      <div className="re-sticky-grid">
         {steps.map((s, idx) => {
           const isActive = activeStep === idx;
           return (
             <div
               key={s.step}
+              className={`re-sticky-card ${isActive ? 'active' : ''}`}
               onClick={() => {
                 playSound('tap');
                 setActiveStep(idx);
               }}
               style={{
-                background: isActive ? 'var(--re-bg-surface-subtle)' : '#FFFFFF',
-                border: `2px solid ${isActive ? s.color : 'var(--re-border-subtle)'}`,
-                borderRadius: '18px',
-                padding: '18px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                position: 'relative',
-                boxShadow: isActive ? `0 8px 24px ${s.color}25` : '0 2px 8px rgba(0,0,0,0.02)'
+                transform: `rotate(${s.cardTilt})`,
+                '--card-glow': s.glow,
+                '--card-accent': s.numColor
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, background: s.color, color: '#FFF', padding: '2px 8px', borderRadius: '999px' }}>
-                  PHASE {s.step}
-                </span>
-                <span style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--re-text-muted)' }}>
-                  {s.duration}
-                </span>
-              </div>
+              {/* Realistic Washi Tape at Top */}
+              <div
+                className="re-washi-tape"
+                style={{
+                  background: s.tapeColor,
+                  transform: `translateX(-50%) rotate(${s.tapeAngle})`
+                }}
+              />
 
-              <h4 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--re-text-primary)', margin: '0 0 4px', lineHeight: 1.3 }}>
-                {s.title}
-              </h4>
-              <p style={{ fontSize: '12px', color: 'var(--re-text-secondary)', margin: 0, lineHeight: 1.4 }}>
-                {s.subtitle}
-              </p>
+              {/* Inner Pastel Note Canvas */}
+              <div
+                className="re-sticky-inner"
+                style={{
+                  background: s.bgGradient,
+                  color: s.textColor
+                }}
+              >
+                {/* Large Distinct Number */}
+                <div
+                  className="re-sticky-number"
+                  style={{ color: s.numColor }}
+                >
+                  {s.step}
+                </div>
+
+                {/* Title */}
+                <h3
+                  className="re-sticky-title"
+                  style={{ color: s.textColor }}
+                >
+                  {s.title}
+                </h3>
+
+                {/* Short Description */}
+                <p
+                  className="re-sticky-desc"
+                  style={{ color: s.textColor, opacity: 0.9 }}
+                >
+                  {s.summary}
+                </p>
+
+                {/* Footer Pill */}
+                <div
+                  className="re-sticky-footer"
+                  style={{ color: s.numColor }}
+                >
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <Calendar size={11} /> {s.duration}
+                  </span>
+                  <span style={{ fontSize: '10.5px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {isActive ? '● Active Phase' : 'View Details →'}
+                  </span>
+                </div>
+              </div>
             </div>
           );
         })}
       </div>
 
       {/* Active Phase Deep Dive Card */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(124, 109, 175, 0.06) 0%, rgba(255, 164, 57, 0.06) 100%)',
-        border: `1.5px solid ${cur.color}40`,
-        borderRadius: '20px',
-        padding: '24px 28px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: cur.color, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div
+        className="re-roadmap-detail-panel"
+        key={activeStep}
+        style={{
+          borderLeft: `5px solid ${cur.numColor}`
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div
+              style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: '12px',
+                background: cur.numColor,
+                color: '#FFFFFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: `0 6px 16px ${cur.glow}`
+              }}
+            >
               {cur.icon}
             </div>
             <div>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--re-text-primary)', margin: 0 }}>
-                Phase {cur.step}: {cur.title}
-              </h3>
-              <div style={{ fontSize: '12px', color: 'var(--re-text-secondary)' }}>
-                Official ACPC / AICTE Counseling Guidelines
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: cur.numColor, background: `${cur.numColor}15`, padding: '2px 8px', borderRadius: '999px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Phase {cur.step} • {cur.duration}
+                </span>
+                <span style={{ fontSize: '11px', color: 'var(--re-text-muted)', fontWeight: 600 }}>
+                  Official ACPC Guidelines
+                </span>
               </div>
+              <h3 style={{ fontSize: '19px', fontWeight: 800, color: 'var(--re-text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
+                {cur.title}
+              </h3>
             </div>
           </div>
 
@@ -156,28 +238,85 @@ export const AdmissionsRoadmapSection = ({ onOpenQuickMatch }) => {
               if (onOpenQuickMatch) onOpenQuickMatch();
             }}
             className="re-btn-primary"
-            style={{ width: 'auto', padding: '10px 22px', fontSize: '13px' }}
+            style={{
+              width: 'auto',
+              padding: '11px 24px',
+              fontSize: '13.5px',
+              background: cur.numColor,
+              boxShadow: `0 6px 20px ${cur.glow}`,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
           >
-            Calculate My Phase {cur.step} Eligibility ↗
+            <span>Calculate Phase {cur.step} Eligibility</span>
+            <ArrowRight size={14} />
           </button>
         </div>
 
-        {/* Detailed Points */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
+        {/* 3 Detailed Checkpoints */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px' }}>
           {cur.details.map((d, i) => (
-            <div key={i} style={{ background: '#FFFFFF', border: '1px solid var(--re-border-subtle)', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '13px', color: 'var(--re-text-primary)', lineHeight: 1.45 }}>
-              <CheckCircle2 size={16} color={cur.color} style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div
+              key={i}
+              style={{
+                background: 'var(--re-bg-surface-subtle)',
+                border: '1px solid var(--re-border-subtle)',
+                borderRadius: '14px',
+                padding: '14px 16px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px',
+                fontSize: '13px',
+                color: 'var(--re-text-primary)',
+                lineHeight: 1.45
+              }}
+            >
+              <div
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  borderRadius: '50%',
+                  background: `${cur.numColor}18`,
+                  color: cur.numColor,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: '1px'
+                }}
+              >
+                <Check size={11} strokeWidth={3} />
+              </div>
               <span>{d}</span>
             </div>
           ))}
         </div>
 
-        {/* Counselor Pro Tip */}
-        <div style={{ background: '#FFFFFF', border: '1px solid var(--re-border-subtle)', borderRadius: '12px', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12.5px', color: 'var(--re-text-secondary)' }}>
-          <span style={{ fontWeight: 800, color: cur.color }}>💡 ADMISSIONS COUNSELOR TIP:</span>
-          <span>{cur.tip}</span>
+        {/* Admissions Counselor Pro-Tip */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(255, 164, 57, 0.08) 0%, rgba(124, 109, 175, 0.05) 100%)',
+            border: '1px solid rgba(255, 164, 57, 0.25)',
+            borderRadius: '14px',
+            padding: '13px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '13px',
+            color: 'var(--re-text-primary)'
+          }}
+        >
+          <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'rgba(255, 164, 57, 0.2)', color: '#D97706', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Lightbulb size={14} />
+          </div>
+          <div>
+            <span style={{ fontWeight: 800, color: '#D97706', marginRight: '6px' }}>COUNSELOR TIP:</span>
+            <span style={{ color: 'var(--re-text-secondary)' }}>{cur.tip}</span>
+          </div>
         </div>
       </div>
     </section>
   );
 };
+

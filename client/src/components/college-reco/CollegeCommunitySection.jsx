@@ -14,7 +14,13 @@ import {
   CheckCircle2,
   ExternalLink,
   HelpCircle,
-  BookOpen
+  BookOpen,
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  RotateCcw
 } from 'lucide-react';
 import { SparkleStar } from './CollegeSquircles';
 import { playSound } from '../../utils/audio';
@@ -26,6 +32,8 @@ const InstagramIcon = ({ size = 16 }) => (
     <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
   </svg>
 );
+
+import { ALL_COLLEGES_BENCHMARK, mergeWithApiColleges } from '../../data/collegesData';
 
 export const CollegeCommunitySection = ({
   colleges = [],
@@ -39,111 +47,89 @@ export const CollegeCommunitySection = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('All');
   const [selectedType, setSelectedType] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
   const [openFaq, setOpenFaq] = useState(null);
+  const [jumpPageInput, setJumpPageInput] = useState('');
 
   // Fast Simulator state
   const [simMarks, setSimMarks] = useState(84);
   const [simBudget, setSimBudget] = useState(300000);
   const [simCity, setSimCity] = useState('All');
 
-  const defaultColleges = [
-    {
-      _id: '1',
-      name: 'Dhirubhai Ambani Institute of Information and Communication Technology (DA-IICT)',
-      city: 'Gandhinagar',
-      state: 'Gujarat',
-      collegeType: 'Private',
-      collegeRating: 4.8,
-      eligibilityPercentage: 75,
-      annualFee: 250000,
-      avgPackage: '₹16.2 LPA',
-      highestPackage: '₹52 LPA',
-      placementRate: 97.2,
-      description: 'Premier ICT institute renowned for exceptional computer science research, innovation, and top placements.'
-    },
-    {
-      _id: '2',
-      name: 'Nirma University - Institute of Technology',
-      city: 'Ahmedabad',
-      state: 'Gujarat',
-      collegeType: 'Private',
-      collegeRating: 4.6,
-      eligibilityPercentage: 70,
-      annualFee: 215000,
-      avgPackage: '₹12.4 LPA',
-      highestPackage: '₹46 LPA',
-      placementRate: 94.8,
-      description: 'Leading autonomous university recognized for technical excellence, world-class labs, and industry tie-ups.'
-    },
-    {
-      _id: '3',
-      name: 'L.D. College of Engineering (LDCE)',
-      city: 'Ahmedabad',
-      state: 'Gujarat',
-      collegeType: 'Government',
-      collegeRating: 4.5,
-      eligibilityPercentage: 65,
-      annualFee: 6500,
-      avgPackage: '₹7.8 LPA',
-      highestPackage: '₹24 LPA',
-      placementRate: 89.5,
-      description: 'Historic apex government engineering college established in 1948 with rich alumni heritage and high ROI.'
-    },
-    {
-      _id: '4',
-      name: 'Pandit Deendayal Energy University (PDEU)',
-      city: 'Gandhinagar',
-      state: 'Gujarat',
-      collegeType: 'Deemed',
-      collegeRating: 4.6,
-      eligibilityPercentage: 65,
-      annualFee: 280000,
-      avgPackage: '₹9.5 LPA',
-      highestPackage: '₹38 LPA',
-      placementRate: 92.0,
-      description: 'World-class energy, engineering, and liberal studies university with cutting-edge infrastructure.'
-    },
-    {
-      _id: '5',
-      name: 'Birla Vishvakarma Mahavidyalaya (BVM Engineering College)',
-      city: 'Anand',
-      state: 'Gujarat',
-      collegeType: 'Grant-in-Aid',
-      collegeRating: 4.4,
-      eligibilityPercentage: 60,
-      annualFee: 45000,
-      avgPackage: '₹6.8 LPA',
-      highestPackage: '₹22 LPA',
-      placementRate: 88.0,
-      description: 'First engineering college of Gujarat established in 1948 with renowned engineering programs.'
-    },
-    {
-      _id: '6',
-      name: 'CHARUSAT - Chandubhai S Patel Institute of Technology',
-      city: 'Changa',
-      state: 'Gujarat',
-      collegeType: 'Private',
-      collegeRating: 4.5,
-      eligibilityPercentage: 60,
-      annualFee: 140000,
-      avgPackage: '₹7.2 LPA',
-      highestPackage: '₹28 LPA',
-      placementRate: 90.5,
-      description: 'High-ranking university with advanced research centers and extensive industry collaborations.'
-    }
-  ];
+  const collegeList = React.useMemo(() => {
+    return mergeWithApiColleges(colleges);
+  }, [colleges]);
 
-  const collegeList = colleges.length > 0 ? colleges : defaultColleges;
+  const uniqueCities = React.useMemo(() => {
+    const set = new Set(collegeList.map((c) => c.city).filter(Boolean));
+    return ['All', ...Array.from(set).sort()];
+  }, [collegeList]);
 
   // Filtered colleges for Explorer
-  const filteredColleges = collegeList.filter((c) => {
-    const matchesSearch =
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.city || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCity = selectedCity === 'All' || c.city === selectedCity;
-    const matchesType = selectedType === 'All' || c.collegeType === selectedType;
-    return matchesSearch && matchesCity && matchesType;
-  });
+  const filteredColleges = React.useMemo(() => {
+    return collegeList.filter((c) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        c.name.toLowerCase().includes(q) ||
+        (c.shortName || '').toLowerCase().includes(q) ||
+        (c.city || '').toLowerCase().includes(q) ||
+        (c.naac || '').toLowerCase().includes(q);
+      const matchesCity = selectedCity === 'All' || c.city === selectedCity;
+      const matchesType =
+        selectedType === 'All' ||
+        (selectedType === 'Government' && (c.collegeType?.toLowerCase().includes('govt') || c.collegeType?.toLowerCase().includes('government') || c.collegeType?.toLowerCase().includes('nit') || c.collegeType?.toLowerCase().includes('iit'))) ||
+        (selectedType === 'Private' && c.collegeType?.toLowerCase().includes('private')) ||
+        (selectedType === 'Autonomous' && c.collegeType?.toLowerCase().includes('autonomous')) ||
+        (selectedType === 'Deemed' && c.collegeType?.toLowerCase().includes('deemed'));
+      return matchesSearch && matchesCity && matchesType;
+    });
+  }, [collegeList, searchQuery, selectedCity, selectedType]);
+
+  // Reset to page 1 whenever search query or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCity, selectedType, pageSize]);
+
+  const totalColleges = filteredColleges.length;
+  const totalPages = Math.max(1, Math.ceil(totalColleges / pageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (safeCurrentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalColleges);
+  const paginatedColleges = filteredColleges.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages || page === safeCurrentPage) return;
+    playSound('tap');
+    setCurrentPage(page);
+    const gridEl = document.getElementById('college-directory-grid');
+    if (gridEl) {
+      gridEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleJumpSubmit = (e) => {
+    e.preventDefault();
+    const pageNum = parseInt(jumpPageInput, 10);
+    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+      handlePageChange(pageNum);
+      setJumpPageInput('');
+    }
+  };
+
+  const getPaginationItems = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (safeCurrentPage <= 4) {
+      return [1, 2, 3, 4, 5, '...', totalPages];
+    }
+    if (safeCurrentPage >= totalPages - 3) {
+      return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, '...', safeCurrentPage - 1, safeCurrentPage, safeCurrentPage + 1, '...', totalPages];
+  };
 
   const handleTabSwitch = (tab) => {
     playSound('tap');
@@ -153,6 +139,16 @@ export const CollegeCommunitySection = ({
   const toggleFaq = (index) => {
     playSound('pop');
     setOpenFaq(openFaq === index ? null : index);
+  };
+
+  const hasActiveFilters = searchQuery !== '' || selectedCity !== 'All' || selectedType !== 'All';
+
+  const resetFilters = () => {
+    playSound('pop');
+    setSearchQuery('');
+    setSelectedCity('All');
+    setSelectedType('All');
+    setCurrentPage(1);
   };
 
   return (
@@ -241,7 +237,7 @@ export const CollegeCommunitySection = ({
           </button>
         </div>
 
-        {/* TAB 1: LIVE COLLEGE DIRECTORY EXPLORER */}
+        {/* TAB 1: LIVE COLLEGE DIRECTORY EXPLORER WITH ADVANCED PAGINATION */}
         {activeTab === 'explorer' && (
           <div>
             {/* Search & Filter Toolbar */}
@@ -249,17 +245,18 @@ export const CollegeCommunitySection = ({
               display: 'flex',
               flexWrap: 'wrap',
               gap: '10px',
-              marginBottom: '20px',
+              marginBottom: '16px',
               background: 'var(--re-bg-surface-subtle)',
               padding: '10px 14px',
               borderRadius: '16px',
-              border: '1px solid var(--re-border-subtle)'
+              border: '1px solid var(--re-border-subtle)',
+              alignItems: 'center'
             }}>
-              <div style={{ flex: 2, minWidth: '200px', display: 'flex', alignItems: 'center', gap: '8px', background: '#FFFFFF', padding: '8px 12px', borderRadius: '10px', border: '1px solid var(--re-border-subtle)' }}>
+              <div style={{ flex: 2, minWidth: '220px', display: 'flex', alignItems: 'center', gap: '8px', background: '#FFFFFF', padding: '8px 12px', borderRadius: '10px', border: '1px solid var(--re-border-subtle)' }}>
                 <Search size={15} color="var(--re-text-muted)" />
                 <input
                   type="text"
-                  placeholder="Search university or city..."
+                  placeholder="Search 50+ universities or cities..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{ border: 'none', outline: 'none', background: 'transparent', width: '100%', fontSize: '13px', fontFamily: 'inherit' }}
@@ -271,11 +268,11 @@ export const CollegeCommunitySection = ({
                 onChange={(e) => setSelectedCity(e.target.value)}
                 style={{ padding: '8px 12px', borderRadius: '10px', border: '1px solid var(--re-border-subtle)', background: '#FFFFFF', fontSize: '12.5px', fontFamily: 'inherit', fontWeight: 600 }}
               >
-                <option value="All">All Cities (Gujarat)</option>
-                <option value="Gandhinagar">Gandhinagar</option>
-                <option value="Ahmedabad">Ahmedabad</option>
-                <option value="Anand">Anand / V.V. Nagar</option>
-                <option value="Changa">Changa</option>
+                {uniqueCities.map((city) => (
+                  <option key={city} value={city}>
+                    {city === 'All' ? 'All Cities (Gujarat & National)' : city}
+                  </option>
+                ))}
               </select>
 
               <select
@@ -284,9 +281,9 @@ export const CollegeCommunitySection = ({
                 style={{ padding: '8px 12px', borderRadius: '10px', border: '1px solid var(--re-border-subtle)', background: '#FFFFFF', fontSize: '12.5px', fontFamily: 'inherit', fontWeight: 600 }}
               >
                 <option value="All">All Types</option>
-                <option value="Government">Government</option>
+                <option value="Government">Government / National</option>
                 <option value="Private">Private Autonomous</option>
-                <option value="Grant-in-Aid">Grant-in-Aid</option>
+                <option value="Autonomous">Autonomous</option>
                 <option value="Deemed">Deemed University</option>
               </select>
 
@@ -313,9 +310,86 @@ export const CollegeCommunitySection = ({
               </button>
             </div>
 
+            {/* Results Counter & Page Size Toolbar */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+              padding: '6px 4px 16px',
+              fontSize: '12.5px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: 'rgba(124, 109, 175, 0.12)',
+                  color: 'var(--re-accent-purple)',
+                  padding: '4px 12px',
+                  borderRadius: '999px',
+                  fontWeight: 800,
+                  fontSize: '12px'
+                }}>
+                  Showing {totalColleges > 0 ? startIndex + 1 : 0} – {endIndex} of {totalColleges} Colleges
+                </span>
+
+                {hasActiveFilters && (
+                  <button
+                    onClick={resetFilters}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--re-accent-pink)',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <RotateCcw size={12} />
+                    <span>Reset Filters</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Page Size Selector */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--re-text-secondary)', fontWeight: 600 }}>
+                <span>Cards per page:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    playSound('tap');
+                    setPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--re-border-subtle)',
+                    background: '#FFFFFF',
+                    color: 'var(--re-text-primary)',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  {[12, 24, 36, 48].map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             {/* Colleges Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '32px', textAlign: 'left' }}>
-              {filteredColleges.slice(0, 6).map((col) => {
+            <div id="college-directory-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '24px', textAlign: 'left' }}>
+              {paginatedColleges.map((col) => {
                 const isSaved = savedIds.includes(col._id);
                 return (
                   <div
@@ -365,39 +439,272 @@ export const CollegeCommunitySection = ({
                       <div style={{ fontSize: '11.5px', color: 'var(--re-text-secondary)', display: 'flex', gap: '8px', marginBottom: '12px' }}>
                         <span>📍 {col.city || 'Gujarat'}</span>
                         <span>•</span>
-                        <span>Min Cutoff: {col.eligibilityPercentage || 65}%</span>
+                        <span>Min Cutoff: {col.eligibilityPercentage || 50}%</span>
                       </div>
                     </div>
 
                     <div style={{ borderTop: '1px solid var(--re-border-subtle)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <div style={{ fontSize: '10px', color: 'var(--re-text-muted)', fontWeight: 600 }}>AVG PACKAGE</div>
-                        <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFA439' }}>{col.avgPackage || '₹12.5 LPA'}</div>
+                        <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFA439' }}>{col.avgPackage || '₹8.5 LPA'}</div>
                       </div>
 
                       <button
+                        className="re-dossier-btn"
                         onClick={() => {
                           playSound('pop');
                           if (onOpenCollegeDetail) onOpenCollegeDetail(col);
                         }}
-                        style={{
-                          background: '#FFFFFF',
-                          border: '1.5px solid var(--re-border-medium)',
-                          padding: '6px 12px',
-                          borderRadius: 'var(--re-radius-pill)',
-                          fontSize: '11.5px',
-                          fontWeight: 700,
-                          color: 'var(--re-text-primary)',
-                          cursor: 'pointer'
-                        }}
                       >
-                        Dossier ↗
+                        <span>Dossier</span>
+                        <ArrowUpRight className="re-dossier-arrow" size={13} strokeWidth={2.5} />
                       </button>
                     </div>
                   </div>
                 );
               })}
             </div>
+
+            {/* Empty State if no colleges match */}
+            {paginatedColleges.length === 0 && (
+              <div style={{
+                background: 'var(--re-bg-surface-subtle)',
+                borderRadius: '18px',
+                border: '1px solid var(--re-border-subtle)',
+                padding: '48px 24px',
+                textAlign: 'center',
+                marginBottom: '28px'
+              }}>
+                <Search size={36} color="var(--re-accent-purple)" style={{ opacity: 0.6, marginBottom: '12px' }} />
+                <h3 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--re-text-primary)', margin: '0 0 6px' }}>
+                  No colleges match your search criteria
+                </h3>
+                <p style={{ fontSize: '13px', color: 'var(--re-text-secondary)', maxWidth: '420px', margin: '0 auto 16px' }}>
+                  Try changing your keyword search, selecting "All Cities", or resetting your institute category filter.
+                </p>
+                <button
+                  onClick={resetFilters}
+                  className="re-nav-primary-action-btn"
+                  style={{ padding: '8px 18px', fontSize: '12.5px' }}
+                >
+                  Reset Search & Filters
+                </button>
+              </div>
+            )}
+
+            {/* HIGH-END PAGINATION BAR */}
+            {totalPages > 1 && (
+              <div style={{
+                background: 'var(--re-bg-surface-subtle)',
+                border: '1px solid var(--re-border-subtle)',
+                borderRadius: '20px',
+                padding: '14px 20px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '14px',
+                marginBottom: '28px',
+                boxShadow: '0 4px 20px rgba(78, 63, 166, 0.04)'
+              }}>
+                {/* Left: Info */}
+                <div style={{ fontSize: '12.5px', color: 'var(--re-text-secondary)', fontWeight: 700 }}>
+                  Page <strong style={{ color: 'var(--re-accent-purple)' }}>{safeCurrentPage}</strong> of <strong>{totalPages}</strong>
+                </div>
+
+                {/* Center: Pagination Buttons */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {/* First Page Button */}
+                  <button
+                    onClick={() => handlePageChange(1)}
+                    disabled={safeCurrentPage === 1}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '10px',
+                      border: '1px solid var(--re-border-subtle)',
+                      background: '#FFFFFF',
+                      color: safeCurrentPage === 1 ? 'var(--re-text-muted)' : 'var(--re-text-primary)',
+                      cursor: safeCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                      opacity: safeCurrentPage === 1 ? 0.45 : 1,
+                      transition: 'all 0.15s ease'
+                    }}
+                    title="First Page"
+                  >
+                    <ChevronsLeft size={15} />
+                  </button>
+
+                  {/* Previous Page Button */}
+                  <button
+                    onClick={() => handlePageChange(safeCurrentPage - 1)}
+                    disabled={safeCurrentPage === 1}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '0 10px',
+                      height: '32px',
+                      borderRadius: '10px',
+                      border: '1px solid var(--re-border-subtle)',
+                      background: '#FFFFFF',
+                      color: safeCurrentPage === 1 ? 'var(--re-text-muted)' : 'var(--re-text-primary)',
+                      cursor: safeCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      opacity: safeCurrentPage === 1 ? 0.45 : 1,
+                      transition: 'all 0.15s ease'
+                    }}
+                    title="Previous Page"
+                  >
+                    <ChevronLeft size={14} />
+                    <span>Prev</span>
+                  </button>
+
+                  {/* Page Number Pills */}
+                  {getPaginationItems().map((item, idx) => {
+                    if (item === '...') {
+                      return (
+                        <span
+                          key={`dots-${idx}`}
+                          style={{
+                            padding: '0 6px',
+                            color: 'var(--re-text-muted)',
+                            fontWeight: 800,
+                            fontSize: '13px'
+                          }}
+                        >
+                          …
+                        </span>
+                      );
+                    }
+
+                    const isCurrent = item === safeCurrentPage;
+                    return (
+                      <button
+                        key={item}
+                        onClick={() => handlePageChange(item)}
+                        style={{
+                          minWidth: '32px',
+                          height: '32px',
+                          padding: '0 8px',
+                          borderRadius: '10px',
+                          border: isCurrent ? 'none' : '1px solid var(--re-border-subtle)',
+                          background: isCurrent
+                            ? 'linear-gradient(135deg, var(--re-accent-purple, #7C6DAF) 0%, var(--re-accent-purple-dark, #584887) 100%)'
+                            : '#FFFFFF',
+                          color: isCurrent ? '#FFFFFF' : 'var(--re-text-primary)',
+                          fontWeight: isCurrent ? 900 : 700,
+                          fontSize: '12.5px',
+                          cursor: 'pointer',
+                          boxShadow: isCurrent ? '0 4px 14px rgba(124, 109, 175, 0.4)' : 'none',
+                          transform: isCurrent ? 'scale(1.05)' : 'scale(1)',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        {item}
+                      </button>
+                    );
+                  })}
+
+                  {/* Next Page Button */}
+                  <button
+                    onClick={() => handlePageChange(safeCurrentPage + 1)}
+                    disabled={safeCurrentPage === totalPages}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '0 10px',
+                      height: '32px',
+                      borderRadius: '10px',
+                      border: '1px solid var(--re-border-subtle)',
+                      background: '#FFFFFF',
+                      color: safeCurrentPage === totalPages ? 'var(--re-text-muted)' : 'var(--re-text-primary)',
+                      cursor: safeCurrentPage === totalPages ? 'not-allowed' : 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      opacity: safeCurrentPage === totalPages ? 0.45 : 1,
+                      transition: 'all 0.15s ease'
+                    }}
+                    title="Next Page"
+                  >
+                    <span>Next</span>
+                    <ChevronRight size={14} />
+                  </button>
+
+                  {/* Last Page Button */}
+                  <button
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={safeCurrentPage === totalPages}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '10px',
+                      border: '1px solid var(--re-border-subtle)',
+                      background: '#FFFFFF',
+                      color: safeCurrentPage === totalPages ? 'var(--re-text-muted)' : 'var(--re-text-primary)',
+                      cursor: safeCurrentPage === totalPages ? 'not-allowed' : 'pointer',
+                      opacity: safeCurrentPage === totalPages ? 0.45 : 1,
+                      transition: 'all 0.15s ease'
+                    }}
+                    title="Last Page"
+                  >
+                    <ChevronsRight size={15} />
+                  </button>
+                </div>
+
+                {/* Right: Quick Jump Form */}
+                <form
+                  onSubmit={handleJumpSubmit}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}
+                >
+                  <span style={{ color: 'var(--re-text-secondary)', fontWeight: 600 }}>Jump to:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max={totalPages}
+                    placeholder="#"
+                    value={jumpPageInput}
+                    onChange={(e) => setJumpPageInput(e.target.value)}
+                    style={{
+                      width: '46px',
+                      height: '30px',
+                      padding: '0 6px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--re-border-subtle)',
+                      background: '#FFFFFF',
+                      color: 'var(--re-text-primary)',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      textAlign: 'center',
+                      outline: 'none'
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      height: '30px',
+                      padding: '0 10px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--re-border-medium)',
+                      background: '#FFFFFF',
+                      color: 'var(--re-text-primary)',
+                      fontSize: '11.5px',
+                      fontWeight: 800,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Go
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         )}
 

@@ -1,15 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/ruang-edit.css';
 import { CollegeNavbar } from '../components/college-reco/CollegeNavbar';
 import { AdmissionsRoadmapSection } from '../components/college-reco/AdmissionsRoadmapSection';
 import { QuickRecommendationModal } from '../components/college-reco/QuickRecommendationModal';
 import { playSound, toggleSound } from '../utils/audio';
+import { useAuth } from '../context/AuthContext';
 import { GraduationCap, Calculator, CheckSquare, HelpCircle, ExternalLink, Calendar, ShieldCheck, ArrowUpRight } from 'lucide-react';
 
 export default function RoadmapPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [theme, setTheme] = useState('lavender');
   const [soundOn, setSoundOn] = useState(true);
   const [quickMatchOpen, setQuickMatchOpen] = useState(false);
+
+  const handleOpenAiMatcher = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setQuickMatchOpen(true);
+  };
 
   // Merit Calculator state
   const [boardTheoryMarks, setBoardTheoryMarks] = useState(250); // out of 300
@@ -62,7 +74,7 @@ export default function RoadmapPage() {
         onToggleTheme={handleToggleTheme}
         soundOn={soundOn}
         onToggleSound={handleToggleSound}
-        onOpenQuickMatch={() => setQuickMatchOpen(true)}
+        onOpenQuickMatch={handleOpenAiMatcher}
       />
 
       <main className="re-page-frame">
@@ -81,7 +93,7 @@ export default function RoadmapPage() {
         </section>
 
         {/* 1. Main Interactive Timeline Section */}
-        <AdmissionsRoadmapSection onOpenQuickMatch={() => setQuickMatchOpen(true)} />
+        <AdmissionsRoadmapSection onOpenQuickMatch={handleOpenAiMatcher} />
 
         {/* 2. Merit Calculator & Document Checklist Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px', marginTop: '36px' }}>

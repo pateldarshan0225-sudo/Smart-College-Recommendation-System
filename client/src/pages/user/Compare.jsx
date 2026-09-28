@@ -17,18 +17,13 @@ export default function Compare() {
     api.get('/colleges').then((r) => {
       const list = r.data?.data || [];
       setCols(list);
-      if (list.length >= 2) {
-        setSelected([list[0]._id, list[1]._id]);
-      } else if (list.length === 1) {
-        setSelected([list[0]._id]);
-      }
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
 
   const toggle = (id) => {
     playSound('tap');
-    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length < 3 ? [...s, id] : s));
+    setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length < 5 ? [...s, id] : s));
   };
 
   const items = cols.filter((c) => selected.includes(c._id));
@@ -55,7 +50,7 @@ export default function Compare() {
             College Comparison Matrix
           </h1>
           <p style={{ fontSize: '13px', color: isDark ? '#9DA3BC' : '#7E84A3', margin: 0 }}>
-            Select up to 3 colleges to compare admission eligibility, ratings, locations, and university affiliations.
+            Select up to 5 colleges to compare admission eligibility, ratings, locations, and university affiliations.
           </p>
         </div>
 
@@ -75,7 +70,7 @@ export default function Compare() {
           }}
         >
           <Scale size={15} />
-          <span>Launch Full 4-Way Compare</span>
+          <span>Launch Full 5-Way Compare</span>
         </Link>
       </div>
 
@@ -88,8 +83,18 @@ export default function Compare() {
           border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid #E5E9F2'
         }}
       >
-        <div style={{ fontSize: '13px', fontWeight: '800', color: isDark ? '#FFFFFF' : '#1E1B4B', marginBottom: '12px' }}>
-          Select Colleges to Compare ({selected.length}/3 selected):
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <div style={{ fontSize: '13px', fontWeight: '800', color: isDark ? '#FFFFFF' : '#1E1B4B' }}>
+            Select Colleges to Compare ({selected.length}/5 selected):
+          </div>
+          {selected.length > 0 && (
+            <button
+              onClick={() => setSelected([])}
+              style={{ background: 'none', border: 'none', color: '#FF4472', fontSize: '12px', fontWeight: '800', cursor: 'pointer' }}
+            >
+              Clear Selection
+            </button>
+          )}
         </div>
 
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/ruang-edit.css';
 import { CollegeNavbar } from '../components/college-reco/CollegeNavbar';
 import { ScholarshipCalculatorSection } from '../components/college-reco/ScholarshipCalculatorSection';
 import { QuickRecommendationModal } from '../components/college-reco/QuickRecommendationModal';
 import { playSound, toggleSound } from '../utils/audio';
+import { useAuth } from '../context/AuthContext';
 import { Award, ShieldCheck, CheckCircle2, FileText, ExternalLink, HelpCircle, ArrowUpRight } from 'lucide-react';
 
 export default function ScholarshipsPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [theme, setTheme] = useState('lavender');
   const [soundOn, setSoundOn] = useState(true);
   const [quickMatchOpen, setQuickMatchOpen] = useState(false);
@@ -15,6 +19,14 @@ export default function ScholarshipsPage() {
     document.title = 'MYSY & Gujarat Government Scholarships - Smart College';
     window.scrollTo(0, 0);
   }, []);
+
+  const handleOpenAiMatcher = () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setQuickMatchOpen(true);
+  };
 
   const handleToggleTheme = () => {
     const nextTheme = theme === 'lavender' ? 'midnight' : 'lavender';
@@ -37,7 +49,7 @@ export default function ScholarshipsPage() {
         onToggleTheme={handleToggleTheme}
         soundOn={soundOn}
         onToggleSound={handleToggleSound}
-        onOpenQuickMatch={() => setQuickMatchOpen(true)}
+        onOpenQuickMatch={handleOpenAiMatcher}
       />
 
       <main className="re-page-frame">
@@ -56,7 +68,7 @@ export default function ScholarshipsPage() {
         </section>
 
         {/* 1. Main Interactive Scholarship Calculator */}
-        <ScholarshipCalculatorSection onOpenQuickMatch={() => setQuickMatchOpen(true)} />
+        <ScholarshipCalculatorSection onOpenQuickMatch={handleOpenAiMatcher} />
 
         {/* 2. Comprehensive Scholarship Schemes Comparison Cards */}
         <section style={{ marginTop: '40px' }}>
