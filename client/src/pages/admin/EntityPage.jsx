@@ -545,7 +545,13 @@ export default function EntityPage({ entity }) {
     setFormAlert(null);
     setShowPassword(false);
     if (x) {
-      setForm({ ...x, password: '' });
+      const normalized = { ...x, password: '' };
+      Object.keys(normalized).forEach(k => {
+        if (normalized[k] && typeof normalized[k] === 'object' && normalized[k]._id) {
+          normalized[k] = normalized[k]._id;
+        }
+      });
+      setForm(normalized);
     } else {
       // Set sensible defaults for new record
       const initialForm = Object.fromEntries(fs.map(f => {
@@ -617,6 +623,9 @@ export default function EntityPage({ entity }) {
       const config = getFieldConfig(entity, k, editing);
       if (config.type === 'number' && clean[k] != null) {
         clean[k] = Number(clean[k]);
+      }
+      if (clean[k] && typeof clean[k] === 'object' && clean[k]._id) {
+        clean[k] = clean[k]._id;
       }
     });
 

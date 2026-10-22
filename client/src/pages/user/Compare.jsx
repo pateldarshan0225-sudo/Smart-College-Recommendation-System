@@ -120,7 +120,7 @@ export default function Compare() {
                 }}
               >
                 {isSelected ? <Check size={13} /> : <Plus size={13} />}
-                <span>{c.name?.split(' ')[0] || 'College'}</span>
+                <span>{c.shortName || (c.name.length > 24 ? c.name.slice(0, 22) + '...' : c.name)}</span>
               </button>
             );
           })}

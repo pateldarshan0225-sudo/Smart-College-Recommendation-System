@@ -118,7 +118,7 @@ export default function UserLayout() {
 
   const userInitials = user?.name
     ? user.name.split(' ').filter(Boolean).map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : 'KP';
+    : (user?.email ? user.email.slice(0, 2).toUpperCase() : 'ST');
 
   const filteredGroups = STUDENT_MODULE_GROUPS.map((group) => ({
     ...group,

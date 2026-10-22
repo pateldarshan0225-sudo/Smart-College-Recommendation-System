@@ -50,6 +50,8 @@ export default function App() {
             {/* Dedicated Public Pages */}
             <Route path="/" element={<CollegeLanding />} />
             <Route path="/colleges" element={<CollegesPage />} />
+            <Route path="/colleges/:id" element={<CollegeDetails />} />
+            <Route path="/college/:id" element={<CollegeDetails />} />
             <Route path="/roadmap" element={<RoadmapPage />} />
             <Route path="/careers" element={<CareersPage />} />
             <Route path="/scholarships" element={<ScholarshipsPage />} />

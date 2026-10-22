@@ -97,17 +97,17 @@ export async function calculateRecommendations(userId) {
   const academicSc = academicScore(academic);
   const results = [];
 
-  for (const college of colleges) {
+  function scoreCollege(college, isFallback = false) {
     const matches = collegeCourses.filter(
-      (cc) => String(cc.collegeId) === String(college._id) && (!course || String(cc.courseId) === String(course._id))
+      (cc) => String(cc.collegeId) === String(college._id) && (!course || isFallback || String(cc.courseId) === String(course._id))
     );
-    if (course && matches.length === 0) continue;
+    if (!isFallback && course && matches.length === 0) return null;
 
     const match = matches[0];
     const fee = match ? feeByCollegeCourse.get(`${college._id}:${match.courseId}`) : fees.find((f) => String(f.collegeId) === String(college._id));
     const placement = placementByCollege.get(String(college._id));
     const facilitiesData = facilityByCollege.get(String(college._id));
-    const courseMatch = course ? 100 : 75;
+    const courseMatch = !isFallback && course ? 100 : 75;
     const budgetSc = budgetScore(profile.budget, fee?.totalAnnualFee || 0);
     const placementSc = placement
       ? Math.min(100, +(placement.placementRate * 0.6 + Math.min(100, (placement.averagePackage / 1000000) * 100) * 0.4).toFixed(2))
@@ -122,13 +122,17 @@ export async function calculateRecommendations(userId) {
     } else {
       reasons.push('Your academic score is below the listed eligibility threshold.');
     }
-    if (course) reasons.push(`Offers your preferred ${course.courseName || 'engineering'} program.`);
+    if (!isFallback && course) {
+      reasons.push(`Offers your preferred ${course.courseName || 'engineering'} program.`);
+    } else if (isFallback && course) {
+      reasons.push(`Ranked overall match for engineering (preferred ${course.courseName} has limited seat records).`);
+    }
     if (budgetSc >= 80) reasons.push('Tuition fee is within your target budget range.');
     if (placementSc >= 70) reasons.push('Strong campus placement track record with high median CTC.');
     if (facilitySc >= 70) reasons.push('Satisfies your key campus infrastructure preferences.');
     if (locSc >= 60) reasons.push('Matches your preferred geographic location in Gujarat.');
 
-    results.push({
+    return {
       college,
       courseMatch,
       academicScore: academicSc,
@@ -142,7 +146,20 @@ export async function calculateRecommendations(userId) {
       placement,
       facilities: facilitiesData,
       collegeCourse: match
-    });
+    };
+  }
+
+  for (const college of colleges) {
+    const scored = scoreCollege(college, false);
+    if (scored) results.push(scored);
+  }
+
+  // Graceful fallback if strict course filter yielded zero results
+  if (results.length === 0 && course) {
+    for (const college of colleges) {
+      const scored = scoreCollege(college, true);
+      if (scored) results.push(scored);
+    }
   }
 
   return results.sort((a, b) => b.overallScore - a.overallScore);

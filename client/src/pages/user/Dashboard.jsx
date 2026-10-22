@@ -26,7 +26,8 @@ import {
   DollarSign,
   ArrowUpRight,
   Zap,
-  Check
+  Check,
+  Search
 } from 'lucide-react';
 import { playSound } from '../../utils/audio';
 
@@ -46,7 +47,28 @@ export default function Dashboard() {
   const [period, setPeriod] = useState('Monthly');
   const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
   const [activeCollegePin, setActiveCollegePin] = useState(null);
+  const [collegeSearch, setCollegeSearch] = useState('');
+  const [collegeFilterType, setCollegeFilterType] = useState('All');
   const nav = useNavigate();
+
+  const dashboardColleges = React.useMemo(() => {
+    return collegesList.filter((col) => {
+      const q = collegeSearch.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        col.name?.toLowerCase().includes(q) ||
+        col.city?.toLowerCase().includes(q) ||
+        col.university?.toLowerCase().includes(q);
+      const type = col.collegeType?.toLowerCase() || '';
+      const matchesType =
+        collegeFilterType === 'All' ||
+        (collegeFilterType === 'Government' &&
+          (type.includes('govt') || type.includes('government') || type.includes('nit') || type.includes('iit'))) ||
+        (collegeFilterType === 'Private' && type.includes('private')) ||
+        (collegeFilterType === 'Autonomous' && type.includes('autonomous'));
+      return matchesSearch && matchesType;
+    });
+  }, [collegesList, collegeSearch, collegeFilterType]);
 
   // Load all live dynamic data from the backend APIs
   const fetchDashboardData = async () => {
@@ -156,49 +178,66 @@ export default function Dashboard() {
     'Computer Engineering & AI';
 
   // Seed / fallback recommendations if empty
-  const displayRecs = recommendations.length > 0
-    ? recommendations.slice(0, 3)
-    : [
-        {
-          _id: 'rec-1',
-          overallScore: 96,
-          collegeId: {
-            _id: collegesList[0]?._id || 'da',
-            name: 'DA-IICT Gandhinagar',
-            city: 'Gandhinagar',
-            state: 'Gujarat',
-            collegeRating: 4.8
-          },
-          placement: { averagePackage: 1750000, highestPackage: 5400000 },
-          fee: { totalAnnualFee: 220000 }
+  const displayRecs = React.useMemo(() => {
+    if (recommendations && recommendations.length > 0) {
+      return recommendations.slice(0, 3);
+    }
+
+    const da = collegesList.find(c =>
+      c.name?.toLowerCase().includes('daiict') ||
+      c.name?.toLowerCase().includes('dhirubhai ambani') ||
+      c.name?.toLowerCase().includes('da-iict')
+    );
+    const nirma = collegesList.find(c =>
+      c.name?.toLowerCase().includes('nirma')
+    );
+    const ldce = collegesList.find(c =>
+      c.name?.toLowerCase().includes('l.d.') ||
+      c.name?.toLowerCase().includes('ldce')
+    );
+
+    return [
+      {
+        _id: 'rec-1',
+        overallScore: 96,
+        collegeId: da || {
+          _id: '6ab935562257bb477d2bc1e7',
+          name: 'DA-IICT Gandhinagar',
+          city: 'Gandhinagar',
+          state: 'Gujarat',
+          collegeRating: 4.9
         },
-        {
-          _id: 'rec-2',
-          overallScore: 92,
-          collegeId: {
-            _id: collegesList[1]?._id || 'nu',
-            name: 'Nirma University - IT',
-            city: 'Ahmedabad',
-            state: 'Gujarat',
-            collegeRating: 4.6
-          },
-          placement: { averagePackage: 1220000, highestPackage: 4800000 },
-          fee: { totalAnnualFee: 195000 }
+        placement: { averagePackage: 1750000, highestPackage: 5400000 },
+        fee: { totalAnnualFee: 220000 }
+      },
+      {
+        _id: 'rec-2',
+        overallScore: 92,
+        collegeId: nirma || {
+          _id: '6ab935562257bb477d2bc1e9',
+          name: 'Nirma University - IT',
+          city: 'Ahmedabad',
+          state: 'Gujarat',
+          collegeRating: 4.7
         },
-        {
-          _id: 'rec-3',
-          overallScore: 89,
-          collegeId: {
-            _id: collegesList[2]?._id || 'ld',
-            name: 'L.D. College of Engineering',
-            city: 'Ahmedabad',
-            state: 'Gujarat',
-            collegeRating: 4.5
-          },
-          placement: { averagePackage: 780000, highestPackage: 2800000 },
-          fee: { totalAnnualFee: 1500 }
-        }
-      ];
+        placement: { averagePackage: 1220000, highestPackage: 4800000 },
+        fee: { totalAnnualFee: 195000 }
+      },
+      {
+        _id: 'rec-3',
+        overallScore: 89,
+        collegeId: ldce || {
+          _id: '6ab935562257bb477d2bc1ec',
+          name: 'L.D. College of Engineering',
+          city: 'Ahmedabad',
+          state: 'Gujarat',
+          collegeRating: 4.5
+        },
+        placement: { averagePackage: 780000, highestPackage: 2800000 },
+        fee: { totalAnnualFee: 1500 }
+      }
+    ];
+  }, [recommendations, collegesList]);
 
   // Dynamic Month Wave presets
   const monthWavePresets = {
@@ -298,9 +337,9 @@ export default function Dashboard() {
         };
       })
     : [
-        { id: 'da', name: 'DA-IICT Gandhinagar', initials: 'DA', city: 'Gandhinagar', rating: '4.8', avgCTC: '₹17.5 LPA', top: '35%', left: '26%', bg: '#6C5CE7' },
-        { id: 'sv', name: 'SVNIT Surat', initials: 'SV', city: 'Surat', rating: '4.7', avgCTC: '₹14.2 LPA', top: '75%', left: '55%', bg: '#10B981' },
-        { id: 'nu', name: 'Nirma University', initials: 'NU', city: 'Ahmedabad', rating: '4.6', avgCTC: '₹12.2 LPA', top: '38%', left: '82%', bg: '#FF5E89' }
+        { id: '6ab935562257bb477d2bc1e7', name: 'DA-IICT Gandhinagar', initials: 'DA', city: 'Gandhinagar', rating: '4.8', avgCTC: '₹17.5 LPA', top: '35%', left: '26%', bg: '#6C5CE7' },
+        { id: '6ab935562257bb477d2bc1e8', name: 'SVNIT Surat', initials: 'SV', city: 'Surat', rating: '4.7', avgCTC: '₹14.2 LPA', top: '75%', left: '55%', bg: '#10B981' },
+        { id: '6ab935562257bb477d2bc1e9', name: 'Nirma University', initials: 'NU', city: 'Ahmedabad', rating: '4.6', avgCTC: '₹12.2 LPA', top: '38%', left: '82%', bg: '#FF5E89' }
       ];
 
   return (
@@ -718,6 +757,279 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* =================================================================
+            DYNAMIC ACCREDITED COLLEGES HUB DIRECTLY IN DASHBOARD
+            Clicking any college opens its dynamic particular details page!
+            ================================================================= */}
+        <div
+          style={{
+            marginTop: '22px',
+            background: 'var(--adm-white, #FFFFFF)',
+            borderRadius: '24px',
+            padding: '24px',
+            border: '1px solid var(--adm-border-soft, #E5E9F2)',
+            boxShadow: '0 8px 30px rgba(78, 63, 166, 0.04)'
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '18px'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div className="admin-purple-squircle" style={{ width: '40px', height: '40px' }}>
+                <Building2 size={20} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '17px', fontWeight: '900', margin: 0, color: 'var(--adm-text-dark, #1E1B4B)' }}>
+                  Accredited Colleges & Universities
+                </h3>
+                <p style={{ fontSize: '11.5px', color: 'var(--adm-text-muted, #7E84A3)', margin: '2px 0 0' }}>
+                  Browse {collegesList.length || 50} verified campuses • Click any college to view dynamic profile
+                </p>
+              </div>
+            </div>
+
+            {/* Filter Pills */}
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {['All', 'Government', 'Private', 'Autonomous'].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => {
+                    playSound('tap');
+                    setCollegeFilterType(t);
+                  }}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: '999px',
+                    fontSize: '11.5px',
+                    fontWeight: '800',
+                    border: collegeFilterType === t ? '1.5px solid #6857E9' : '1px solid var(--adm-border-soft, #E5E9F2)',
+                    background: collegeFilterType === t ? 'var(--adm-purple-soft, #F0EDFE)' : 'transparent',
+                    color: collegeFilterType === t ? '#6857E9' : 'var(--adm-text-muted, #7E84A3)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Search Input */}
+          <div style={{ position: 'relative', marginBottom: '16px' }}>
+            <Search
+              size={15}
+              style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#9DA3BC'
+              }}
+            />
+            <input
+              type="text"
+              placeholder="Search college by name, city (e.g. Adani, Nirma, SVNIT, DA-IICT)..."
+              value={collegeSearch}
+              onChange={(e) => setCollegeSearch(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '10px 14px 10px 36px',
+                borderRadius: '12px',
+                border: '1px solid var(--adm-border-soft, #E5E9F2)',
+                fontSize: '12.5px',
+                outline: 'none',
+                background: 'var(--adm-bg, #F8FAFD)',
+                color: 'var(--adm-text-dark, #1E1B4B)'
+              }}
+            />
+          </div>
+
+          {/* Dynamic Grid of Colleges */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '14px'
+            }}
+          >
+            {dashboardColleges.slice(0, 6).map((col) => {
+              const isSaved = savedColleges.some((item) => (item.collegeId?._id || item.collegeId) === col._id);
+              const isGovt =
+                col.collegeType?.toLowerCase().includes('govt') ||
+                col.collegeType?.toLowerCase().includes('government') ||
+                col.collegeType?.toLowerCase().includes('nit') ||
+                col.collegeType?.toLowerCase().includes('iit');
+
+              return (
+                <div
+                  key={col._id}
+                  onClick={() => {
+                    playSound('click');
+                    nav(`/user/colleges/${col._id}`);
+                  }}
+                  style={{
+                    padding: '16px',
+                    borderRadius: '16px',
+                    background: 'var(--adm-bg, #F8FAFD)',
+                    border: '1px solid var(--adm-border-soft, #EAEFFC)',
+                    cursor: 'pointer',
+                    transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '12px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(104, 87, 233, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '6px' }}>
+                      <span
+                        style={{
+                          fontSize: '10.5px',
+                          fontWeight: '800',
+                          padding: '2px 8px',
+                          borderRadius: '6px',
+                          background: isGovt ? 'rgba(16, 185, 129, 0.12)' : 'rgba(104, 87, 233, 0.12)',
+                          color: isGovt ? '#10B981' : '#6857E9'
+                        }}
+                      >
+                        {col.collegeType || 'Autonomous'}
+                      </span>
+
+                      <span style={{ fontSize: '11px', fontWeight: '800', color: '#FFA439' }}>
+                        ★ {col.collegeRating || '4.5'}
+                      </span>
+                    </div>
+
+                    <h4
+                      style={{
+                        fontSize: '14px',
+                        fontWeight: '900',
+                        color: 'var(--adm-text-dark, #1E1B4B)',
+                        margin: '0 0 6px',
+                        lineHeight: 1.3
+                      }}
+                      title={col.name}
+                    >
+                      {col.name}
+                    </h4>
+
+                    <div style={{ fontSize: '11.5px', color: 'var(--adm-text-muted, #7E84A3)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <MapPin size={12} color="#6857E9" />
+                      <span>{col.city}, {col.state || 'Gujarat'}</span>
+                      <span>•</span>
+                      <span>ACPC: {col.eligibilityPercentage || 50}%</span>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      paddingTop: '10px',
+                      borderTop: '1px solid var(--adm-border-soft, #E5E9F2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    <div style={{ fontSize: '11px' }}>
+                      <span style={{ color: 'var(--adm-text-muted, #7E84A3)' }}>Affiliation: </span>
+                      <strong style={{ color: 'var(--adm-text-dark, #1E1B4B)' }}>
+                        {col.university ? (col.university.length > 18 ? col.university.slice(0, 16) + '...' : col.university) : 'GTU'}
+                      </strong>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleSave(col._id);
+                        }}
+                        style={{
+                          background: isSaved ? 'rgba(16, 185, 129, 0.12)' : 'transparent',
+                          border: isSaved ? '1px solid #10B981' : '1px solid var(--adm-border-soft, #E5E9F2)',
+                          borderRadius: '8px',
+                          padding: '4px 8px',
+                          color: isSaved ? '#10B981' : 'var(--adm-text-muted, #7E84A3)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          fontSize: '11px',
+                          fontWeight: '700'
+                        }}
+                        title={isSaved ? 'Remove from Saved Shortlist' : 'Add to Shortlist'}
+                      >
+                        <Bookmark size={12} fill={isSaved ? 'currentColor' : 'none'} />
+                      </button>
+
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                          color: '#6857E9',
+                          fontSize: '11.5px',
+                          fontWeight: '800'
+                        }}
+                      >
+                        <span>View Details</span>
+                        <ArrowUpRight size={13} />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Footer Link */}
+          <div
+            style={{
+              marginTop: '16px',
+              paddingTop: '12px',
+              borderTop: '1px solid var(--adm-border-soft, #E5E9F2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '12px'
+            }}
+          >
+            <span style={{ color: 'var(--adm-text-muted, #7E84A3)' }}>
+              Showing {Math.min(6, dashboardColleges.length)} of {collegesList.length} verified campuses
+            </span>
+            <Link
+              to="/colleges"
+              style={{
+                color: '#6857E9',
+                fontWeight: '800',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <span>Browse Full 500+ Directory</span>
+              <ArrowRight size={13} />
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* =================================================================
@@ -745,8 +1057,13 @@ export default function Dashboard() {
         {/* Dynamic Top AI Recommended Colleges List */}
         <div className="admin-reco-mini-list">
           {displayRecs.map((rec, idx) => {
-            const college = rec.collegeId || rec.college || {};
-            const collegeId = college._id || `temp-${idx}`;
+            let college = rec.collegeId || rec.college || {};
+            if (typeof college === 'string') {
+              college = collegesList.find((c) => c._id === college) || { _id: college };
+            }
+            const collegeId = college._id || (typeof rec.collegeId === 'string' ? rec.collegeId : `temp-${idx}`);
+            const collegeName = college.name || (idx === 0 ? 'DA-IICT Gandhinagar' : idx === 1 ? 'Nirma University - IT' : 'L.D. College of Engineering');
+            const collegeCity = college.city || 'Gujarat';
             const isSaved = savedColleges.some(
               (item) => (item.collegeId?._id || item.collegeId) === collegeId
             );
@@ -759,10 +1076,27 @@ export default function Dashboard() {
               : (idx === 2 ? '₹1.5k/yr' : '₹1.9L/yr');
 
             return (
-              <div key={collegeId} className="admin-reco-mini-card">
+              <div
+                key={collegeId}
+                className="admin-reco-mini-card"
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  playSound('click');
+                  nav(`/user/colleges/${collegeId}`);
+                }}
+              >
                 <div className="admin-reco-mini-header">
-                  <h4 className="admin-reco-mini-title text-truncate" title={college.name}>
-                    {college.name}
+                  <h4
+                    className="admin-reco-mini-title text-truncate"
+                    title={collegeName}
+                    style={{ cursor: 'pointer' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playSound('click');
+                      nav(`/user/colleges/${collegeId}`);
+                    }}
+                  >
+                    {collegeName}
                   </h4>
                   <span className="admin-reco-score-chip">
                     <Sparkles size={10} />
@@ -771,7 +1105,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="admin-reco-mini-meta">
-                  <span>📍 {college.city || 'Gujarat'}</span>
+                  <span>📍 {collegeCity}</span>
                   <span>Avg: <strong style={{ color: '#10B981' }}>{avgPack}</strong></span>
                   <span>Fee: <strong>{fee}</strong></span>
                 </div>
@@ -780,7 +1114,10 @@ export default function Dashboard() {
                   <Link
                     to={`/user/colleges/${collegeId}`}
                     className="admin-reco-mini-link"
-                    onClick={() => playSound('click')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playSound('click');
+                    }}
                   >
                     <span>View Profile</span>
                     <ArrowUpRight size={12} />
@@ -789,7 +1126,10 @@ export default function Dashboard() {
                   <button
                     type="button"
                     className={`admin-reco-mini-btn ${isSaved ? 'is-saved' : ''}`}
-                    onClick={() => handleToggleSave(collegeId)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleSave(collegeId);
+                    }}
                     title={isSaved ? 'Remove from Saved Shortlist' : 'Add to Saved Shortlist'}
                   >
                     <Bookmark size={12} fill={isSaved ? 'currentColor' : 'none'} />
