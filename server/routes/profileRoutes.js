@@ -1,1 +1,0 @@
-import { Router } from 'express'; import {getProfile,upsertProfile} from '../controllers/profileController.js'; import {authenticate,authorizeUser} from '../middleware/auth.js'; const r=Router(); r.use(authenticate,authorizeUser); r.get('/',getProfile); r.post('/',upsertProfile); r.put('/',upsertProfile); export default r;

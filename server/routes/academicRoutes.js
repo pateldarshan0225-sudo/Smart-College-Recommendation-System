@@ -1,1 +1,0 @@
-import { Router } from 'express'; import {getAcademic,upsertAcademic} from '../controllers/academicController.js'; import {authenticate,authorizeUser} from '../middleware/auth.js'; const r=Router(); r.use(authenticate,authorizeUser); r.get('/',getAcademic); r.post('/',upsertAcademic); r.put('/',upsertAcademic); export default r;

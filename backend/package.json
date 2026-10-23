@@ -1,0 +1,22 @@
+{
+  "name": "smart-college-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "seed": "node scripts/seed.js",
+    "update:colleges": "node scripts/update-real-colleges.js",
+    "add:state-colleges": "node scripts/add-state-colleges.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.19.0",
+    "express-session": "^1.18.2",
+    "connect-mongo": "^5.1.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3"
+  }
+}
